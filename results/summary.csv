@@ -1,0 +1,17 @@
+dataset,n,m,problem,algorithm,time_ms,solution_size
+random_100,100,224,coloring,basic,0.0185,5
+random_100,100,224,coloring,degree_ordered,0.029417,4
+random_100,100,224,vertex_cover,basic,0.00625,88
+random_100,100,224,vertex_cover,randomized,0.023667,74
+random_200,200,942,coloring,basic,0.061208,7
+random_200,200,942,coloring,degree_ordered,0.086375,6
+random_200,200,942,vertex_cover,basic,0.01625,186
+random_200,200,942,vertex_cover,randomized,0.047625,171
+random_400,400,3961,coloring,basic,0.271417,10
+random_400,400,3961,coloring,degree_ordered,0.335458,10
+random_400,400,3961,vertex_cover,basic,0.0625,382
+random_400,400,3961,vertex_cover,randomized,0.1215,372
+random_800,800,15824,coloring,basic,0.941541,17
+random_800,800,15824,coloring,degree_ordered,1.124625,15
+random_800,800,15824,vertex_cover,basic,0.217417,790
+random_800,800,15824,vertex_cover,randomized,0.325333,773
