@@ -14,6 +14,8 @@ def read_results(filename):
     return rows
 
 def make_plot(rows, problem):
+    # Input: benchmark summary and problem type
+    # Output: saved PNG runtime comparison plot
     # The code compares measured runtime with scaled theoretical complexity
     plt.figure(figsize=(7, 4.5))
 
@@ -61,6 +63,8 @@ def make_plot(rows, problem):
     print(f"Saved {filename}")
 
 def main():
+    # Input: none, reads results/summary.csv
+    # Output: two PNG runtime comparison plots
     # the code generates the two runtime plots
     rows = read_results("results/summary.csv")
     for problem in ("vertex_cover", "coloring"):

@@ -24,19 +24,8 @@ def benchmark(graph, dataset, repeats, seed):
     # Memory is measured separately to avoid affecting timed executions.
     rows = []
     for problem, name, function in METHODS:
-        tracemalloc.start()
-        try:
-            if name == "randomized":
-                memory_result = function(graph, seed=seed)
-            else:
-                memory_result = function(graph)
-            # Convert peak memory from bytes to MiB: bytes / (1024^2).
-            peak_mb = tracemalloc.get_traced_memory()[1] / (1024 * 1024)
-        finally:
-            tracemalloc.stop()
-        del memory_result
-
         for trial in range(repeats):
+            # The code measures runtime without memory tracing
             start = perf_counter()
             if name == "randomized":
                 result = function(graph, seed=seed + trial)
@@ -44,14 +33,31 @@ def benchmark(graph, dataset, repeats, seed):
                 result = function(graph)
             # Runtime (ms) = (end time - start time) * 1000.
             elapsed_ms = (perf_counter() - start) * 1000
-            # Solution size is the number of cover vertices or colors.
+
+            # It checks correctness and measure solution size.
             if problem == "vertex_cover":
                 assert valid_vertex_cover(graph, result)
                 solution_size = len(result)
             else:
                 assert valid_coloring(graph, result)
                 solution_size = number_of_colors(result)
+            del result
 
+            # It measures peak memory in a separate execution using the same seed.
+            tracemalloc.start()
+            try:
+                if name == "randomized":
+                    memory_result = function(graph, seed=seed + trial)
+                else:
+                    memory_result = function(graph)
+
+                # It converts peak memory from bytes to MiB.
+                # Peak memory (MiB) = peak traced bytes / (1024^2).
+                peak_mb = tracemalloc.get_traced_memory()[1] / (1024 * 1024)
+            finally:
+                tracemalloc.stop()
+
+            del memory_result
             rows.append({
                 "dataset": dataset, "n": graph.n, "m": len(graph.edges),
                 "problem": problem, "algorithm": name, "repeat": trial + 1,
@@ -86,14 +92,15 @@ def summarize(rows):
         first = group[0]
         times = [r["time_ms"] for r in group]
         sizes = [r["solution_size"] for r in group]
+        memories = [r["peak_memory_mb"] for r in group]
         summary.append({
             "dataset": dataset, "n": first["n"], "m": first["m"],
             "problem": problem, "algorithm": algorithm, "trials": len(group),
             "time_ms": round(median(times), 6),
+            "peak_memory_mb": round(median(memories), 6),
             "time_std_ms": round(stdev(times), 6) if len(times) > 1 else 0,
             "solution_size": round(mean(sizes), 3),
-            "solution_std": round(stdev(sizes), 3) if len(sizes) > 1 else 0,
-            "peak_memory_mb": first["peak_memory_mb"], })
+            "solution_std": round(stdev(sizes), 3) if len(sizes) > 1 else 0, })
     return sorted(summary, key=lambda r: (r["problem"], r["n"], r["algorithm"]))
 
 def main():
@@ -124,7 +131,7 @@ def main():
             f"runs={row['trials']} "
             f"time={row['time_ms']:.3f} ms "
             f"{metric}={row['solution_size']:.2f} "
-            f"peak_memory={row['peak_memory_mb']:.3f} MB")
+            f"peak_memory={row['peak_memory_mb']:.3f} MiB")
 
 if __name__ == "__main__":
     main()
