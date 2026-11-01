@@ -1,35 +1,34 @@
-"""Undirected graph representation and graph benchmark-file reader."""
-
-import gzip
+# The Graph class stores an undirected graph using adjacency sets and an edge list.
+# Adjacency sets provide fast neighbor lookup and avoid duplicate edges.
 from pathlib import Path
-
 
 class Graph:
     def __init__(self, n):
-        """Input: number of vertices. Output: empty undirected graph."""
-        if n < 0:
-            raise ValueError("Vertex count cannot be negative")
+        # Input: number of vertices
+        # Output: empty undirected graph
         self.n = n
         self.adj = [set() for _ in range(n)]
         self.edges = []
 
     def add_edge(self, u, v):
-        """Input: two vertex IDs. Output: None; add one undirected edge."""
+        # Input: two vertex IDs
+        # Output: None; add one undirected edge
+        # It rejects invalid vertices and self-loops.
         if not (0 <= u < self.n and 0 <= v < self.n) or u == v:
             raise ValueError(f"Invalid edge: ({u}, {v})")
         if v not in self.adj[u]:
             self.adj[u].add(v)
             self.adj[v].add(u)
             self.edges.append((u, v))
-
-
-
+            
 def load_mtx(filename):
-    """Read an unweighted undirected graph in Matrix Market format."""
+    # Input: Matrix Market file
+    # Output: undirected graph
+    # It reads a square adjacency matrix and converts entries into edges.
     with open(filename, "r", encoding="utf-8") as f:
-        # Skip the Matrix Market header and comments.
+        # The code is to skip the header and comments, and read matrix dimensions.
         for line in f:
-            if not line.strip() or line.lstrip().startswith("%"):
+            if not line.strip() or line.startswith("%"):
                 continue
             n, columns, entries = map(int, line.split())
             if n != columns:
@@ -39,30 +38,32 @@ def load_mtx(filename):
         else:
             raise ValueError("Missing Matrix Market dimensions")
 
+        # Read edges and convert 1-based IDs to 0-based IDs.
         count = 0
         for line in f:
-            if not line.strip() or line.lstrip().startswith("%"):
+            if not line.strip() or line.startswith("%"):
                 continue
             u, v = map(int, line.split()[:2])
             if u != v:
                 graph.add_edge(u - 1, v - 1)
             count += 1
-
         if count != entries:
-            raise ValueError("Incorrect number of Matrix Market entries")
-        return graph
+            raise ValueError("Incorrect number of entries")
+    return graph
 
 
 def load_graph(filename):
-    """Read a Matrix Market .mtx or a DIMACS graph file."""
+    # Input: Matrix Market (.mtx) or DIMACS graph file
+    # Output: undirected graph
+    # This block is to select the appropriate loader based on the file extension.
     filename = Path(filename)
     if filename.suffix.lower() == ".mtx":
         return load_mtx(filename)
-    opener = gzip.open if filename.suffix == ".gz" else open
     graph = None
     expected_edges = None
-
-    with opener(filename, "rt", encoding="utf-8") as f:
+    
+    # It reads DIMACS header and edges, skipping comments.
+    with open(filename, "r", encoding="utf-8") as f:
         for line in f:
             parts = line.split()
             if not parts or parts[0] in ("c", "%"):
@@ -74,9 +75,8 @@ def load_graph(filename):
                 expected_edges = int(parts[3])
             elif parts[0] == "e" and graph is not None and len(parts) == 3:
                 graph.add_edge(int(parts[1]) - 1, int(parts[2]) - 1)
-            else:
-                raise ValueError(f"Invalid DIMACS line: {line.strip()}")
-
+                
+    # The code verifies that the graph was loaded with the expected edge count.
     if graph is None or len(graph.edges) != expected_edges:
         raise ValueError("Missing header or incorrect edge count")
     return graph
