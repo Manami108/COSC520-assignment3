@@ -1,4 +1,6 @@
 # This is unit tests for algorithm correctness and graph data loading.
+import tempfile
+from pathlib import Path
 import unittest
 from algorithms.graph_coloring import (basic_graph_coloring, dsatur_coloring, valid_coloring,)
 from algorithms.vertex_cover import (basic_vertex_cover, randomized_vertex_cover, valid_vertex_cover,)
@@ -56,6 +58,25 @@ class AlgorithmTests(unittest.TestCase):
         graph.add_edge(0, 1)
         graph.add_edge(1, 0)
         self.assertEqual(graph.edges, [(0, 1)])
+    
+    def test_matrix_market_loader(self):
+        # This code checks that Matrix Market entries are loaded as undirected edges.
+        with tempfile.TemporaryDirectory() as directory:
+            filename = Path(directory) / "small.mtx"
+            filename.write_text(
+                "%%MatrixMarket matrix coordinate pattern symmetric\n"
+                "% Sample graph\n"
+                "4 4 3\n"
+                "1 2\n"
+                "2 3\n"
+                "3 4\n",
+                encoding="utf-8",)
+
+            graph = load_graph(filename)
+        self.assertEqual(graph.n, 4)
+        self.assertEqual(len(graph.edges), 3)
+        self.assertEqual(set(graph.edges), {(0, 1), (1, 2), (2, 3)})
+        self.assertEqual(graph.adj[1], {0, 2})
 
 if __name__ == "__main__":
     unittest.main()
