@@ -1,6 +1,6 @@
 """Small demonstration of the four algorithms."""
 
-from algorithms.graph_coloring import basic_graph_coloring, degree_ordered_coloring
+from algorithms.graph_coloring import basic_graph_coloring, dsatur_coloring
 from algorithms.vertex_cover import basic_vertex_cover, randomized_vertex_cover
 from experiments.dataset import load_graph
 
@@ -12,7 +12,7 @@ def main():
     print("Basic cover:", sorted(basic_vertex_cover(graph)))
     print("Randomized cover:", sorted(randomized_vertex_cover(graph, seed=42)))
     print("Basic coloring:", basic_graph_coloring(graph))
-    print("Degree-ordered coloring:", degree_ordered_coloring(graph))
+    print("DSATUR coloring:", dsatur_coloring(graph))
 
 
 if __name__ == "__main__":

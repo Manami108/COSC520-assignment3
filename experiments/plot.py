@@ -1,43 +1,44 @@
-"""Create runtime and solution-size plots from results/summary.csv."""
+"""Plot runtime, solution quality, and peak memory on FRB benchmark graphs."""
 
 import csv
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 
 
 def read_results(filename):
-    """Input: summary CSV path. Output: parsed benchmark rows."""
+    """Read the benchmark summary CSV and convert numerical values."""
     with open(filename, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     for row in rows:
         row["n"] = int(row["n"])
-        row["time_ms"] = float(row["time_ms"])
-        row["solution_size"] = float(row["solution_size"])
+        for column in ("time_ms", "solution_size", "peak_memory_mb", "optimum"):
+            row[column] = float(row[column])
     return rows
 
 
 def make_plot(rows, problem, metric):
-    """Input: summary rows, task and metric. Output: saved PNG figure."""
+    """Create one graph for two algorithms solving the same problem."""
     plt.figure(figsize=(7, 4.5))
-    names = sorted({r["algorithm"] for r in rows if r["problem"] == problem})
-    for name in names:
-        points = sorted((r for r in rows
-                         if r["problem"] == problem and r["algorithm"] == name),
+    relevant = [r for r in rows if r["problem"] == problem]
+    for name in sorted({r["algorithm"] for r in relevant}):
+        points = sorted((r for r in relevant if r["algorithm"] == name),
                         key=lambda r: r["n"])
-        x = [r["n"] for r in points]
-        y = [r[metric] for r in points]
-        # Separate benchmark graphs can share n, so only join unique x values.
-        if len(x) == len(set(x)):
-            plt.plot(x, y, marker="o", label=name)
-        else:
-            plt.scatter(x, y, label=name)
+        plt.plot([r["n"] for r in points], [r[metric] for r in points],
+                 marker="o", label=name)
 
-    plt.xlabel("Number of vertices")
+    if metric == "solution_size":
+        # The FRB collection documents the exact optimum for these instances.
+        optimal = sorted({(r["n"], r["optimum"]) for r in relevant})
+        plt.plot([n for n, _ in optimal], [v for _, v in optimal],
+                 linestyle="--", label="optimal")
+
+    plt.xlabel("Number of vertices (BHOSLIB/FRB)")
     if metric == "time_ms":
         plt.ylabel("Median runtime (ms)")
+    elif metric == "peak_memory_mb":
+        plt.ylabel("Peak traced Python memory (MB)")
     elif problem == "vertex_cover":
-        plt.ylabel("Number of selected vertices")
+        plt.ylabel("Vertices in cover")
     else:
         plt.ylabel("Number of colors")
     plt.title(f"{problem.replace('_', ' ').title()} - {metric.replace('_', ' ')}")
@@ -52,10 +53,10 @@ def make_plot(rows, problem, metric):
 
 
 def main():
-    """Input: results/summary.csv. Output: four comparison figures."""
+    """Generate six comparison figures from the official FRB results."""
     rows = read_results("results/summary.csv")
     for problem in ("vertex_cover", "coloring"):
-        for metric in ("time_ms", "solution_size"):
+        for metric in ("time_ms", "solution_size", "peak_memory_mb"):
             make_plot(rows, problem, metric)
 
 

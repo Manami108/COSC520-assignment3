@@ -1,7 +1,6 @@
-"""Graph representation, DIMACS reader, and synthetic graph generator."""
+"""Undirected graph representation and DIMACS benchmark-file reader."""
 
 import gzip
-import random
 from pathlib import Path
 
 
@@ -25,9 +24,9 @@ class Graph:
 
 
 def load_graph(filename):
-    """Input: DIMACS .col/.clq file (optionally .gz). Output: Graph.
+    """Read a DIMACS .col, .mis, or .clq file (optionally .gz).
 
-    Convert the 1-based vertex numbers in DIMACS files to 0-based IDs.
+    DIMACS uses 1-based vertex labels; convert them to Python's 0-based IDs.
     """
     filename = Path(filename)
     opener = gzip.open if filename.suffix == ".gz" else open
@@ -51,17 +50,4 @@ def load_graph(filename):
 
     if graph is None or len(graph.edges) != expected_edges:
         raise ValueError("Missing header or incorrect edge count")
-    return graph
-
-
-def random_graph(n, probability=0.05, seed=42):
-    """Input: size, edge probability, seed. Output: random undirected graph."""
-    if not 0 <= probability <= 1:
-        raise ValueError("Probability must be between 0 and 1")
-    rng = random.Random(seed)
-    graph = Graph(n)
-    for u in range(n):
-        for v in range(u + 1, n):
-            if rng.random() < probability:
-                graph.add_edge(u, v)
     return graph

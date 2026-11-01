@@ -1,4 +1,4 @@
-"""Greedy graph coloring using two different vertex orderings."""
+"""Basic greedy and DSATUR graph coloring algorithms."""
 
 
 def greedy_coloring(graph, order):
@@ -21,13 +21,31 @@ def basic_graph_coloring(graph):
     return greedy_coloring(graph, range(graph.n))
 
 
-def degree_ordered_coloring(graph):
-    """Input: graph. Output: coloring with highest-degree vertices first.
+def dsatur_coloring(graph):
+    """Input: graph. Output: DSATUR coloring.
 
-    For equal degrees, the vertex with the smaller number comes first.
+    Choose the vertex with the most different colored neighbors.
+    Break ties by higher degree, then lower vertex number.
     """
-    order = sorted(range(graph.n), key=lambda u: (-len(graph.adj[u]), u))
-    return greedy_coloring(graph, order)
+    colors = [-1] * graph.n
+    uncolored = set(range(graph.n))
+    neighbor_colors = [set() for _ in range(graph.n)]
+
+    while uncolored:
+        u = max(uncolored, key=lambda v:
+                (len(neighbor_colors[v]), len(graph.adj[v]), -v))
+
+        color = 0
+        while color in neighbor_colors[u]:
+            color += 1
+        colors[u] = color
+        uncolored.remove(u)
+
+        for v in graph.adj[u]:
+            if v in uncolored:
+                neighbor_colors[v].add(color)
+
+    return colors
 
 
 def valid_coloring(graph, colors):
