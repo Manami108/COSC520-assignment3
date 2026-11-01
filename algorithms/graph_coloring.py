@@ -15,13 +15,11 @@ def greedy_coloring(graph, order):
         colors[u] = color
     return colors
 
-
 def basic_graph_coloring(graph):
     # Input: graph
     # Output: greedy coloring in vertex-number order
     # The algorithm processes vertices from 0 to n-1.
     return greedy_coloring(graph, range(graph.n))
-
 
 def dsatur_coloring(graph):
     # Input: graph
@@ -45,9 +43,7 @@ def dsatur_coloring(graph):
         for v in graph.adj[u]:
             if v in uncolored:
                 neighbor_colors[v].add(color)
-
     return colors
-
 
 def valid_coloring(graph, colors):
     # Input: graph and colors
@@ -56,7 +52,6 @@ def valid_coloring(graph, colors):
     return (len(colors) == graph.n
             and all(isinstance(c, int) and c >= 0 for c in colors)
             and all(colors[u] != colors[v] for u, v in graph.edges))
-
 
 def number_of_colors(colors):
     # Input: color list

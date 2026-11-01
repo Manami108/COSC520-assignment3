@@ -13,7 +13,6 @@ def basic_vertex_cover(graph):
             cover.add(v)
     return cover
 
-
 def randomized_vertex_cover(graph, seed=42):
     # Input: graph and seed
     # Output: a randomized vertex cover
@@ -24,7 +23,6 @@ def randomized_vertex_cover(graph, seed=42):
         if u not in cover and v not in cover:
             cover.add(rng.choice((u, v)))
     return cover
-
 
 def valid_vertex_cover(graph, cover):
     # Input: graph and selected vertices
