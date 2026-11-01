@@ -47,7 +47,7 @@ def make_plot(rows, problem):
         plt.plot(x, reference, linestyle=style, color="gray", linewidth=2, label=label)
 
     plt.xlabel("Number of vertices (BHOSLIB/FRB)")
-    plt.ylabel("Mean runtime (ms)")
+    plt.ylabel("Median runtime (ms)")
     plt.title(f"{problem.replace('_', ' ').title()} - Runtime")
     plt.legend()
     plt.grid(True, alpha=0.25)
