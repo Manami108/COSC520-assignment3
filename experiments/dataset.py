@@ -1,4 +1,4 @@
-"""Undirected graph representation and DIMACS benchmark-file reader."""
+"""Undirected graph representation and graph benchmark-file reader."""
 
 import gzip
 from pathlib import Path
@@ -23,12 +23,41 @@ class Graph:
             self.edges.append((u, v))
 
 
-def load_graph(filename):
-    """Read a DIMACS .col, .mis, or .clq file (optionally .gz).
 
-    DIMACS uses 1-based vertex labels; convert them to Python's 0-based IDs.
-    """
+def load_mtx(filename):
+    """Read an unweighted undirected graph in Matrix Market format."""
+    with open(filename, "r", encoding="utf-8") as f:
+        # Skip the Matrix Market header and comments.
+        for line in f:
+            if not line.strip() or line.lstrip().startswith("%"):
+                continue
+            n, columns, entries = map(int, line.split())
+            if n != columns:
+                raise ValueError("Expected a square adjacency matrix")
+            graph = Graph(n)
+            break
+        else:
+            raise ValueError("Missing Matrix Market dimensions")
+
+        count = 0
+        for line in f:
+            if not line.strip() or line.lstrip().startswith("%"):
+                continue
+            u, v = map(int, line.split()[:2])
+            if u != v:
+                graph.add_edge(u - 1, v - 1)
+            count += 1
+
+        if count != entries:
+            raise ValueError("Incorrect number of Matrix Market entries")
+        return graph
+
+
+def load_graph(filename):
+    """Read a Matrix Market .mtx or a DIMACS graph file."""
     filename = Path(filename)
+    if filename.suffix.lower() == ".mtx":
+        return load_mtx(filename)
     opener = gzip.open if filename.suffix == ".gz" else open
     graph = None
     expected_edges = None
