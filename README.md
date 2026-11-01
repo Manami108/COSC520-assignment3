@@ -40,7 +40,7 @@ Matplotlib is used only for the plots. No external libraries implement the algor
 
 ```bash
 python -m experiments.demo
-python -m unittest discover -s tests -p 'tests.py' -v
+python -m unittest tests.tests -v
 python -m experiments.benchmark
 python -m experiments.plot
 ```
@@ -48,7 +48,7 @@ python -m experiments.plot
 For specific synthetic graph sizes:
 
 ```bash
-python -m experiments.benchmark --sizes 100,300,500,1000 --repeats 5
+python -m experiments.benchmark 
 ```
 
 For a DIMACS benchmark dataset (such as a BHOSLIB `.clq` file), put it in
