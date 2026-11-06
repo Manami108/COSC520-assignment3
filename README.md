@@ -2,7 +2,7 @@
 
 Hi! Welcome back to my GitHub repository, and Happy Halloween 🎃👻
 
-This repository contains the implementation and experimental comparison of two **Vertex Cover** algorithms (**Basic** and **Randomized**) and two **Graph Coloring** algorithms (**Basic Greedy** and **DSATUR**).
+This repository implements and compares two **Vertex Cover** algorithms (**Basic** and **Randomized**) and two **Graph Coloring** algorithms (**Basic Greedy** and **DSATUR**).
 
 The algorithms are implemented in Python without using existing graph-algorithm implementations. The experiments compare execution time, solution size, and additional Python memory usage on seven BHOSLIB/FRB benchmark graphs.
 
@@ -35,14 +35,15 @@ COSC520-assignment3/
 └── README.md
 ```
 
-The seven benchmark datasets should be downloaded separately and placed in `data/` as described below.
+> [!IMPORTANT]
+> The seven benchmark datasets must be downloaded separately and placed in the `data/` directory as described below.
 
 ## Implementations
 
 The four graph algorithms are:
 
-- **Basic Vertex Cover:** Selects both endpoints of an uncovered edge, giving a 2-approximation.
-- **Randomized Vertex Cover:** Selects one randomly chosen endpoint of an uncovered edge. This version does not have the same 2-approximation guarantee.
+- **Basic Vertex Cover:** Selects both endpoints of an uncovered edge.
+- **Randomized Vertex Cover:** Selects one randomly chosen endpoint of an uncovered edge. 
 - **Basic Greedy Coloring:** Processes vertices in numerical order and assigns each vertex the smallest available color.
 - **DSATUR Coloring:** Dynamically selects the uncolored vertex with the highest saturation degree, breaking ties by degree and vertex number, then assigns the smallest available color.
 
@@ -86,8 +87,6 @@ To generate the runtime figures after benchmarking:
 python -m experiments.plot
 ```
 
-Each algorithm runs three times per dataset. The randomized Vertex Cover uses seeds 42, 43, and 44. Graph loading and result validation are excluded from the timed runs; additional Python memory allocations are measured separately using `tracemalloc`.
-
 ## Generated Files
 
 Running the experiments generates the following files:
@@ -97,7 +96,7 @@ Running the experiments generates the following files:
 - `results/figures/vertex_cover_time_ms.png` — Basic versus Randomized Vertex Cover runtime
 - `results/figures/coloring_time_ms.png` — Basic Greedy versus DSATUR Coloring runtime
 
-The runtime figures also include gray, scaled theoretical complexity reference curves. Running the benchmark again overwrites the previous CSV results; running the plotting script overwrites the figures.
+The runtime figures also include gray, scaled theoretical complexity reference curves. 
 
 ## Dataset
 
@@ -133,6 +132,6 @@ The `readme.html` files bundled in the downloaded archives are not required to r
 
 ## Results
 
-The benchmark compares runtime and solution quality on the same seven graphs. Vertex Cover solution size is the number of selected vertices (smaller is better), whereas Graph Coloring solution size is the number of colors used (smaller is better). The plotted theoretical references represent **scaled growth trends**, not exact expected runtimes. The `tracemalloc` values measure Python allocations during algorithm execution, excluding the already-loaded graph. If you would rather skip the benchmarks (which is perfectly fine!), you can check the CSV results and generated figures in the `results/` directory.
+The benchmark compares runtime and solution quality on the same seven graphs. If you would rather skip the benchmarks (which is perfectly fine!), you can check the CSV results and generated figures in the `results/` directory.
 
 ### See you in the next project!
